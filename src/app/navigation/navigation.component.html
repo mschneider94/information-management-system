@@ -1,0 +1,58 @@
+<!-- Section on top of page -->
+<div class="uk-section uk-section-muted uk-section-xsmall">
+  <div  class="uk-container uk-container-expand">
+    <div uk-grid>
+      <div class="uk-width-auto@m">
+        <!-- Menu-Button on left side -->
+        <a uk-icon="menu" uk-toggle href="#offcanvas-menu" uk-tooltip="pos: bottom; delay: 250; title: open navigation menu"></a>
+      </div>
+      <div class="uk-width-expand@m">
+        <!-- Breadcumbs -->
+        <ul class="uk-breadcrumb">
+          <li class="uk-disabled">IT</li>
+          <li><span>changeLog</span></li>
+        </ul>
+      </div>
+      <div class="uk-width-auto@m uk-text-muted">
+        <span uk-tooltip="pos: bottom; delay: 250; title: your username">{{getUserID().name}}</span>
+      </div>
+      <div class="uk-width-auto@m">
+        <!-- Buttons on right side -->
+        <a uk-icon="refresh" class="uk-margin-medium-right" (click)="refresh()" uk-tooltip="pos: bottom; delay: 250; title: reload currently viewed data"></a>
+        <a uk-icon="settings" class="uk-margin-small-right" uk-toggle href="#offcanvas-settings" uk-tooltip="pos: bottom; delay: 250; title: open settings menu"></a>
+        <a uk-icon="sign-out" (click)="signOut()" uk-tooltip="pos: bottom; delay: 250; title: log out"></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation Menu -->
+<div id="offcanvas-menu" uk-offcanvas="overlay: true">
+  <div class="uk-offcanvas-bar">
+    <!-- Content: Navigation Menu -->
+    <ul class="uk-nav-primary uk-nav-parent-icon" uk-nav="multiple: true">
+      <li class="uk-parent uk-open uk-active">
+        <a>IT</a>
+        <ul class="uk-nav-sub">
+          <li><a routerLink="/schema/it.hosts">hosts</a></li>
+          <li><a routerLink="/schema/it.services">services</a></li>
+          <li class="uk-active"><a routerLink="/schema/it.changelog">changeLog</a></li>
+        </ul>
+      </li>
+      <li class="uk-parent">
+        <a>Management</a>
+        <ul class="uk-nav-sub">
+          <li><a href="management/useer">user</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Settings Dialog -->
+<div id="offcanvas-settings" uk-offcanvas="flip: true; overlay: true">
+  <div class="uk-offcanvas-bar">
+    <!-- Content: Settings Dialog-->
+    Hi {{getUserID().name}}!
+  </div>
+</div>
