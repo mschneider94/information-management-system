@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ExplorerComponent } from './explorer/explorer.component';
+import { HttpErrorComponent } from './http-error/http-error.component';
 
 const routes: Routes = [
-  { path: 'schema/:schema', component: ExplorerComponent },
-  { path: '', component: ExplorerComponent },
+  { path: '', pathMatch: 'full', component: HttpErrorComponent },
+  { path: '**', component: HttpErrorComponent }
 ];
 
 @NgModule({

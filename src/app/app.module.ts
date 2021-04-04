@@ -9,6 +9,7 @@ import { NavigationComponent } from './navigation/navigation.component';
 import { ExplorerComponent } from './explorer/explorer.component';
 import { ViewTableComponent } from './explorer/view-table/view-table.component';
 import { ViewDirective } from './explorer/view.directive';
+import { HttpErrorComponent } from './http-error/http-error.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { ViewDirective } from './explorer/view.directive';
     NavigationComponent,
     ExplorerComponent,
     ViewTableComponent,
-    ViewDirective
+    ViewDirective,
+    HttpErrorComponent
   ],
   imports: [
     BrowserModule,
