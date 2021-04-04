@@ -35,7 +35,7 @@ export class NavigationComponent implements OnInit {
   private getSchema(): void {
     this.backendService.getSchema().subscribe(schema => {
       this.schema = schema;
-      this.schemaTree = this.sortingService.tree(schema.map(object => object.name), '.', '/');
+      this.schemaTree = this.sortingService.tree(schema.map(object => object.category), '.', '/');
     });
   }
 

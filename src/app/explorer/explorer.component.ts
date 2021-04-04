@@ -71,7 +71,7 @@ export class ExplorerComponent implements OnInit {
     if (schema.length) {
       let schemaIndex = 0;
       
-      while (schemaIndex < schema.length && schema[schemaIndex].name !== this.schemaName) {
+      while (schemaIndex < schema.length && schema[schemaIndex].category !== this.schemaName) {
         schemaIndex++;
       }
       
