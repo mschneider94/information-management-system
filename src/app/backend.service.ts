@@ -22,10 +22,7 @@ export class BackendService {
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
-
-      // TODO: better job of transforming error for user consumption
+      this.messageService.error(error);
       this.messageService.show(`${operation} failed: ${error.message}`, 'danger');
 
       // Let the app keep running by returning an empty result.
@@ -42,7 +39,7 @@ export class BackendService {
     }
 
     return this.http.get<InformationSchema[]>(apiEndpoint, this.httpOptions).pipe(
-      tap(_ => console.log(`BackendService.getSchema(${schemaName})`)),
+      tap(_ => this.messageService.info(`BackendService.getSchema(${schemaName})`)),
       catchError(this.handleError<InformationSchema[]>(`BackendService.getSchema(${schemaName})`, fallbackSchema))
     );
   }
