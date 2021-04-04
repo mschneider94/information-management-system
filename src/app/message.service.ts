@@ -19,7 +19,23 @@ export class MessageService {
     });
   }
 
-  log(error: TypeError): void {
-    console.error(error);
+  info(message: any): void {
+    console.info(message);
+  }
+
+  log(message: any): void {
+    console.log(message);
+  }
+
+  warn(message: any): void {
+    console.warn(message);
+  }
+
+  error(message: any): void {
+    console.error(message);
+  }
+
+  debug(message: any): void {
+    console.debug(message);
   }
 }
