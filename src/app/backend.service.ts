@@ -30,7 +30,7 @@ export class BackendService {
     };
   }
 
-  public getSchema(schemaName?: string): Observable<InformationSchema[]> {
+  public getSchema(schemaName?: string, mode?: string): Observable<InformationSchema[]> {
     let fallbackSchema: InformationSchema[] = [{
       schemaVersion: null, 
       category: null, 
@@ -42,8 +42,16 @@ export class BackendService {
     }];
 
     let apiEndpoint: string = environment.backendUrl;
-    if(schemaName) {
-      apiEndpoint += '/' + schemaName;
+
+    switch (mode) {
+      case 'byId':
+        apiEndpoint += '/' + schemaName;
+        break;
+
+      default:
+        if(schemaName) {
+          apiEndpoint += '/?name=' + schemaName;
+        }
     }
 
     return this.http.get<InformationSchema[]>(apiEndpoint, this.httpOptions).pipe(
