@@ -9,8 +9,7 @@
       <div class="uk-width-expand@m">
         <!-- Breadcumbs -->
         <ul class="uk-breadcrumb">
-          <li class="uk-disabled">IT</li>
-          <li><span>changeLog</span></li>
+          <li *ngFor="let item of selectedCategory.split('/')"><span>{{item}}</span></li>
         </ul>
       </div>
       <div class="uk-width-auto@m uk-text-muted">
@@ -31,18 +30,28 @@
   <div class="uk-offcanvas-bar">
     <!-- Content: Navigation Menu -->
     <ul class="uk-nav-primary uk-nav-parent-icon" uk-nav="multiple: true">
-      <li class="uk-parent uk-open uk-active">
-        <a>IT</a>
-        <ul class="uk-nav-sub">
-          <li><a routerLink="/category/it/host">hosts</a></li>
-          <li><a routerLink="/category/it/service">services</a></li>
-          <li class="uk-active"><a routerLink="/category/it/changelog">changeLog</a></li>
-        </ul>
-      </li>
-      <li class="uk-parent">
-        <a>Management</a>
-        <ul class="uk-nav-sub">
-          <li><a href="management/useer">user</a></li>
+
+      <li *ngFor="let child of schemaTree.children" class="uk-parent" [ngClass]="selectedCategory.startsWith(child.path) ? 'uk-open uk-active' : ''">
+        <a>{{child.name}}</a>
+        <ul *ngIf="child.children.length > 0" class="uk-nav-sub">
+
+          <ng-container *ngTemplateOutlet="recursiveSubNavTmpl; context:{ $implicit: child.children }"></ng-container>
+
+          <ng-template #recursiveSubNavTmpl let-list="$implicit">
+
+            <li *ngFor="let item of list" [ngClass]="selectedCategory === item.path ? 'uk-active' : ''">
+              <a [routerLink]="'/category/' + item.path">{{ item.name }}</a>
+              <ul *ngIf="item.children.length > 0">
+                
+                <ng-container
+                  *ngTemplateOutlet="recursiveSubNavTmpl; context:{ $implicit: item.children }"
+                ></ng-container>
+
+              </ul>
+            </li>
+
+          </ng-template>
+
         </ul>
       </li>
     </ul>
