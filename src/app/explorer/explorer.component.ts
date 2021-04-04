@@ -39,7 +39,8 @@ export class ExplorerComponent implements OnInit {
   private schemaName$: Subject<string> = new Subject();
   
   public updateSchemaName$(): void {
-    this.schemaName$.next(this.activeRoute.snapshot.paramMap.get('schema'));
+    let schemaName: string = this.activeRoute.snapshot.url.map(path => path).join(".");
+    this.schemaName$.next(schemaName);
   }
 
   // subscribe to the router events to update schemaName$ at NavigationEnd

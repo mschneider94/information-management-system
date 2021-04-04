@@ -4,6 +4,9 @@ import { ExplorerComponent } from './explorer/explorer.component';
 import { HttpErrorComponent } from './http-error/http-error.component';
 
 const routes: Routes = [
+  { path: 'category', children: [
+    { path: '**', component: ExplorerComponent } 
+  ]},
   { path: '', pathMatch: 'full', component: HttpErrorComponent },
   { path: '**', component: HttpErrorComponent }
 ];
