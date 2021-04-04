@@ -37,10 +37,11 @@ export class ExplorerComponent implements OnInit {
 
   // Stream of schemaName, which is subscribed by the explorer-service
   private schemaName$: Subject<string> = new Subject();
+  private schemaName: string = null;
   
   public updateSchemaName$(): void {
-    let schemaName: string = this.activeRoute.snapshot.url.map(path => path).join(".");
-    this.schemaName$.next(schemaName);
+    this.schemaName = this.activeRoute.snapshot.url.map(path => path).join(".");
+    this.schemaName$.next(this.schemaName);
   }
 
   // subscribe to the router events to update schemaName$ at NavigationEnd
@@ -67,17 +68,26 @@ export class ExplorerComponent implements OnInit {
     this.viewContainerRef.clear();
     
     try {
-      if (schema.length === 1) {
-      // Create new ng-Component using ComponentFactory
-      this.viewContainerRef.createComponent(
-        // Resolve ComponentFactory using ViewObject.component
-        this.componentFactoryResolver.resolveComponentFactory(
-          // Get ViewObject.component
-          this.explorerService.getViewObject(schema[0].view).component
-        )
-      );
-      } else if (schema.length) {
-        this.messageService.show(`ExplorerComponent.showView(): ${schema.length} InfromationSchema provided, but only 1 would be allowed`, 'danger');
+      if (schema.length) {
+        let schemaIndex = 0;
+        
+        while (schemaIndex < schema.length && schema[schemaIndex].name !== this.schemaName) {
+          schemaIndex++;
+        }
+        
+        if (schemaIndex < schema.length) {
+          // Create new ng-Component using ComponentFactory
+          this.viewContainerRef.createComponent(
+            // Resolve ComponentFactory using ViewObject.component
+            this.componentFactoryResolver.resolveComponentFactory(
+              // Get ViewObject.component
+              this.explorerService.getViewObject(schema[schemaIndex].view).component
+            )
+          );
+        } else {
+          // BackendService provided only non-matching InformationSchema
+          this.messageService.show(`ExplorerComponent.showView(): no suitable InformationSchema was provided`, 'danger');
+        }
       } else {
         this.messageService.show(`ExplorerComponent.showView(): no InformationSchema was provided`, 'danger');
       }
