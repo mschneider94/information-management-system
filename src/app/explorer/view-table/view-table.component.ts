@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { InformationSchema } from 'src/app/information-schema.interface';
 
 @Component({
   selector: 'app-view-table',
@@ -6,10 +7,11 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./view-table.component.css']
 })
 export class ViewTableComponent implements OnInit {
+  @Input() schema: InformationSchema;
 
   constructor() { }
 
   ngOnInit(): void {
-  }
+    }
 
 }

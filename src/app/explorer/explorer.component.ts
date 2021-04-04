@@ -68,36 +68,37 @@ export class ExplorerComponent implements OnInit {
     this.viewContainerRef.clear();
     
     
-      if (schema.length) {
-        let schemaIndex = 0;
-        
-        while (schemaIndex < schema.length && schema[schemaIndex].name !== this.schemaName) {
-          schemaIndex++;
-        }
-        
-        if (schemaIndex < schema.length) {
+    if (schema.length) {
+      let schemaIndex = 0;
+      
+      while (schemaIndex < schema.length && schema[schemaIndex].name !== this.schemaName) {
+        schemaIndex++;
+      }
+      
+      if (schemaIndex < schema.length) {
 
         try {
           // Create new ng-Component using ComponentFactory
-          this.viewContainerRef.createComponent(
+          let componentRef = this.viewContainerRef.createComponent(
             // Resolve ComponentFactory using ViewObject.component
             this.componentFactoryResolver.resolveComponentFactory(
               // Get ViewObject.component
               this.explorerService.getViewObject(schema[schemaIndex].view).component
             )
           );
+          componentRef.instance.schema = schema[schemaIndex];
         } catch (error) {
           this.messageService.error(error);
           this.messageService.show(`ExplorerComponent.showView(): failed to create view`, 'danger');
         }
 
-        } else {
-          // BackendService provided only non-matching InformationSchema
-          this.messageService.show(`ExplorerComponent.showView(): no suitable InformationSchema was provided`, 'danger');
-        }
       } else {
-        this.messageService.show(`ExplorerComponent.showView(): no InformationSchema was provided`, 'danger');
+        // BackendService provided only non-matching InformationSchema
+        this.messageService.show(`ExplorerComponent.showView(): no suitable InformationSchema was provided`, 'danger');
       }
+    } else {
+      this.messageService.show(`ExplorerComponent.showView(): no InformationSchema was provided`, 'danger');
+    }
     
   }
 }
