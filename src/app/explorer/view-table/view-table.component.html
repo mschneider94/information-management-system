@@ -2,11 +2,9 @@
   <table class="uk-table uk-table-striped">
     <thead>
         <tr>
-            <th>dateTime</th>
-            <th>user</th>
-            <th>value</th>
-            <th>host</th>
-            <th>service</th>
+            <th *ngFor="let metaData of schema.metaData">{{metaData.name}}</th>
+            <th *ngIf="schema.content !== 'none'">{{schema.displayName}}</th>
+            <th *ngFor="let parent of schemaParents">{{parent.displayName}}</th>
         </tr>
     </thead>
     <tbody>
