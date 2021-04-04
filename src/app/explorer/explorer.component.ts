@@ -62,18 +62,22 @@ export class ExplorerComponent implements OnInit {
   }
 
   // Generate the needed Viewer
-  public showView(schema: InformationSchema): void {
+  public showView(schema: InformationSchema[]): void {
     this.viewContainerRef.clear();
     
-    if (schema.view) {
+    if (schema.length === 1) {
       // Create new ng-Component using ComponentFactory
       this.viewContainerRef.createComponent(
         // Resolve ComponentFactory using ViewObject.component
         this.componentFactoryResolver.resolveComponentFactory(
           // Get ViewObject.component
-          this.explorerService.getViewObject(schema.view).component
+          this.explorerService.getViewObject(schema[0].view).component
         )
       );
+    } else if (schema.length) {
+      this.messageService.show(`ExplorerComponent.showView(): ${schema.length} InfromationSchema provided, but only 1 would be allowed`, 'danger');
+    } else {
+      this.messageService.show(`ExplorerComponent.showView(): no InformationSchema was provided`, 'danger');
     }
   }
 }

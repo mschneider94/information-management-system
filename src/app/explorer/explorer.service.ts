@@ -17,12 +17,14 @@ export class ExplorerService {
     private messageService: MessageService
   ) { }
 
-  private schema$: Subject<InformationSchema> = new Subject();
+  private schema$: Subject<InformationSchema[]> = new Subject();
 
-  getSchema$(schemaName$: Subject<string>): Subject<InformationSchema> {
+  getSchema$(schemaName$: Subject<string>): Subject<InformationSchema[]> {
     schemaName$.subscribe(schemaName => {
       this.backendService.getSchema(schemaName)
-        .pipe(takeUntil(schemaName$)).subscribe(schema => this.schema$.next(schema[0]));
+        .pipe(takeUntil(schemaName$)).subscribe(schema => {
+          this.schema$.next(schema);
+        });
     });
 
     return this.schema$;
