@@ -31,7 +31,14 @@ export class BackendService {
   }
 
   public getSchema(schemaName?: string): Observable<InformationSchema[]> {
-    let fallbackSchema: InformationSchema[] = [{ name: null, view: null }];
+    let fallbackSchema: InformationSchema[] = [{
+      schemaVersion: null, 
+      name: null, 
+      view: null, 
+      content: null,
+      parents: [],
+      metaData: []
+    }];
 
     let apiEndpoint: string = environment.backendUrl;
     if(schemaName) {
