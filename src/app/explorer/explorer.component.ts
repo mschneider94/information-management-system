@@ -66,7 +66,8 @@ export class ExplorerComponent implements OnInit {
   public showView(schema: InformationSchema[]): void {
     this.viewContainerRef.clear();
     
-    if (schema.length === 1) {
+    try {
+      if (schema.length === 1) {
       // Create new ng-Component using ComponentFactory
       this.viewContainerRef.createComponent(
         // Resolve ComponentFactory using ViewObject.component
@@ -75,10 +76,14 @@ export class ExplorerComponent implements OnInit {
           this.explorerService.getViewObject(schema[0].view).component
         )
       );
-    } else if (schema.length) {
-      this.messageService.show(`ExplorerComponent.showView(): ${schema.length} InfromationSchema provided, but only 1 would be allowed`, 'danger');
-    } else {
-      this.messageService.show(`ExplorerComponent.showView(): no InformationSchema was provided`, 'danger');
+      } else if (schema.length) {
+        this.messageService.show(`ExplorerComponent.showView(): ${schema.length} InfromationSchema provided, but only 1 would be allowed`, 'danger');
+      } else {
+        this.messageService.show(`ExplorerComponent.showView(): no InformationSchema was provided`, 'danger');
+      }
+    } catch (error) {
+      this.messageService.error(error);
+      this.messageService.show(`ExplorerComponent.showView(): unable to show View`, 'danger');
     }
   }
 }

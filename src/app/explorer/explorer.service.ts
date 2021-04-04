@@ -37,6 +37,9 @@ export class ExplorerService {
       case 'table':
         viewObject = new ViewObject(ViewTableComponent);
         break;
+      
+      default:
+        viewObject = null;
     }
 
     return viewObject;
