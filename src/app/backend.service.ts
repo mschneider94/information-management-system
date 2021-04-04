@@ -12,19 +12,19 @@ export class BackendService {
     private messageService: MessageService
   ) { }
 
-  public getSchema(schemaName: string): Observable<InformationSchema> {
+  public getSchema(schemaName?: string): Observable<InformationSchema[]> {
     // return Schema for document in information-schema with OID==OID
-    let schema: InformationSchema;
+    let schema: InformationSchema[];
 
     // REMOVE: Fixed value for testing
     // ADD: query real backend for schema-data
     switch(schemaName) {
       case 'it.changelog':
-        schema = { name: 'it.changelog', view: 'table'};
+        schema = [{ name: 'it.changelog', view: 'table'}];
         break;
 
       default:
-        schema = { name: null, view: null };
+        schema = [{ name: null, view: null }];
     }
 
     return of(schema);

@@ -22,7 +22,7 @@ export class ExplorerService {
   getSchema$(schemaName$: Subject<string>): Subject<InformationSchema> {
     schemaName$.subscribe(schemaName => {
       this.backendService.getSchema(schemaName)
-        .pipe(takeUntil(schemaName$)).subscribe(schema => this.schema$.next(schema));
+        .pipe(takeUntil(schemaName$)).subscribe(schema => this.schema$.next(schema[0]));
     });
 
     return this.schema$;
