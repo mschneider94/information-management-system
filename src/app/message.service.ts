@@ -18,4 +18,8 @@ export class MessageService {
       status: status
     });
   }
+
+  log(error: TypeError): void {
+    console.error(error);
+  }
 }
