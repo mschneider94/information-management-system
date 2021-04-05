@@ -58,7 +58,7 @@ export class BackendService {
     }
 
     return this.http.get<InformationSchema[]>(apiEndpoint, this.httpOptions).pipe(
-      tap(_ => this.messageService.info(`BackendService.getSchema(${identifier})`)),
+      tap(_ => this.messageService.debug(`BackendService.getSchema(${identifier})`)),
       catchError(this.handleError<InformationSchema[]>(`BackendService.getSchema(${identifier})`, fallbackSchema))
     );
   }
@@ -87,7 +87,7 @@ export class BackendService {
     }
 
     return this.http.get<InformationData[]>(apiEndpoint, this.httpOptions).pipe(
-      tap(_ => this.messageService.info(`BackendService.getData(${identifier})`)),
+      tap(_ => this.messageService.debug(`BackendService.getData(${identifier})`)),
       catchError(this.handleError<InformationData[]>(`BackendService.getSchema(${identifier})`, fallbackData))
     );
   }
