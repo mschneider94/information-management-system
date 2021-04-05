@@ -5,6 +5,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { MessageService } from './message.service';
 import { InformationSchema }from './information-schema.interface';
+import { InformationData } from './information-data.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,7 @@ export class BackendService {
     };
   }
 
-  public getSchema(schemaName?: string, mode?: string): Observable<InformationSchema[]> {
+  public getSchema(identifier?: string, mode?: string): Observable<InformationSchema[]> {
     let fallbackSchema: InformationSchema[] = [{
       schemaVersion: null, 
       category: null, 
@@ -45,18 +46,49 @@ export class BackendService {
 
     switch (mode) {
       case 'byId':
-        apiEndpoint += '/' + schemaName;
+        apiEndpoint += '/schema/' + identifier;
         break;
 
       default:
-        if(schemaName) {
-          apiEndpoint += '/?name=' + schemaName;
+        if(identifier) {
+          apiEndpoint += '/schema?name=' + identifier;
+        } else {
+          apiEndpoint += '/schema';
         }
     }
 
     return this.http.get<InformationSchema[]>(apiEndpoint, this.httpOptions).pipe(
-      tap(_ => this.messageService.info(`BackendService.getSchema(${schemaName})`)),
-      catchError(this.handleError<InformationSchema[]>(`BackendService.getSchema(${schemaName})`, fallbackSchema))
+      tap(_ => this.messageService.info(`BackendService.getSchema(${identifier})`)),
+      catchError(this.handleError<InformationSchema[]>(`BackendService.getSchema(${identifier})`, fallbackSchema))
+    );
+  }
+
+  public getData(identifier?: string, mode?: string): Observable<InformationData[]> {
+    let fallbackData: InformationData[] = [{
+      schema: null, 
+      content: null,
+      parents: [],
+      metaData: []
+    }];
+
+    let apiEndpoint: string = environment.backendUrl;
+
+    switch (mode) {
+      case 'byId':
+        apiEndpoint += '/data/' + identifier;
+        break;
+
+      case 'bySchema':
+        apiEndpoint += '/data?schema=' + identifier;
+        break;
+      
+      default:
+        apiEndpoint += '/data/';
+    }
+
+    return this.http.get<InformationData[]>(apiEndpoint, this.httpOptions).pipe(
+      tap(_ => this.messageService.info(`BackendService.getData(${identifier})`)),
+      catchError(this.handleError<InformationData[]>(`BackendService.getSchema(${identifier})`, fallbackData))
     );
   }
 }
