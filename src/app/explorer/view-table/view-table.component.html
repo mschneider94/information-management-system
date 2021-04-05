@@ -3,25 +3,28 @@
     <thead>
         <tr>
             <th *ngFor="let metaData of schema.metaData">{{metaData.name}}</th>
-            <th *ngIf="schema.content !== 'none'">{{schema.displayName}}</th>
-            <th *ngFor="let parent of schemaParents">{{parent.displayName}}</th>
+            <th *ngIf="schema.content !== 'none' && schema.content !== 'dynamic'">{{schema.displayName}}</th>
+            <ng-container *ngFor="let parent of schemaParents">
+              <th *ngIf="parent.content !== 'none'">{{parent.displayName}}</th>
+            </ng-container>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>Table Data</td>
-            <td>Table Data</td>
-            <td>Table Data</td>
-        </tr>
-        <tr>
-            <td>Table Data</td>
-            <td>Table Data</td>
-            <td>Table Data</td>
-        </tr>
-        <tr>
-            <td>Table Data</td>
-            <td>Table Data</td>
-            <td>Table Data</td>
+        <tr *ngFor="let dataset of informationData">
+          <!-- MetaData -->  
+          <td *ngFor="let metaData of schema.metaData">
+            <ng-container *ngFor="let object of dataset.metaData"><ng-container *ngIf="object[metaData.name]">{{formatContent(object[metaData.name], metaData.type)}}</ng-container></ng-container>
+          </td>
+          <!-- Content -->
+          <td *ngIf="schema.content !== 'none' && schema.content !== 'dynamic'">{{formatContent(dataset.content, schema.content)}}</td>
+          <!-- Parents -->
+          <ng-container *ngFor="let parent of schemaParents">
+            <ng-container *ngIf="parent.content !== 'none'">
+              <ng-container *ngFor="let object of dataset.parents">
+                <td *ngIf="object.schema === parent._id">{{formatContent(object.content, parent.content, object.metaData, parent.metaData)}}</td>
+              </ng-container>
+            </ng-container>
+          </ng-container>
         </tr>
     </tbody>
   </table>

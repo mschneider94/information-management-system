@@ -47,4 +47,25 @@ export class ViewTableComponent implements OnInit {
       }
     });
   }
+  
+  public formatContent(input, format: string, metaDataContent?: any[], metaDataType?: MetaData[]): string {
+    let content: string = '';
+
+    switch (format) {
+      case 'text':
+        content = input;
+        break;
+      case 'dateTime':
+        content = new Date(input).toLocaleString('de-DE');
+        //content += isoDate.getFullYear() + '-' + (isoDate.getMonth()+1) + '-' + isoDate.getDate() + ' ' + isoDate.getHours() + ':' 
+        break;
+      case 'dynamic':
+        input.string.forEach(component => /^#.*/.test(component) ? content += metaDataContent.map(object => object[component.substring(1)]).find(object => typeof(object) === 'string') : content += component);
+        break;
+      default:
+        content = input;
+    }
+
+    return content;
+  }
 }
