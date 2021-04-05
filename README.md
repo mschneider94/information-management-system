@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This Information Management System is (currently just the beginning, hopefully will change soon...) a dynamic solution to Store and View/Review all kinds of informations in flexible schemes.
+This Information Management System is (currently just the beginning, hopefully will change soon...) a dynamic solution to Store and View/Review all kinds of informations in flexible schemas.
 
 The underlying need is mostly the same as with classic Document Management Systems.
 
