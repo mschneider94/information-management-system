@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { InformationSchema } from 'src/app/information-schema.interface';
+import { InformationSchema } from '../../information-schema.interface';
 import { ViewService } from '../view.service';
 
 @Component({
