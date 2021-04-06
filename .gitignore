@@ -1,8 +1,8 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # environments configuration files
-/src/environments/environment.ts
-/src/environments/environment.prod.ts
+/client/environments/environment.ts
+/client/environments/environment.prod.ts
 
 # compiled output
 /dist
