@@ -13,7 +13,7 @@ The code should be just code and all data should reside in the database only.
 
 This application will only as usefull as the views which it includes - so contributions are very welcomed!
 
-## ...some thoughts about the License
+### ...some thoughts about the License
 
 I want to see this application grow to a free, open and universal Information Management System, but in this particular case it will be just as usefull as the views it includes.
 
