@@ -1,5 +1,5 @@
 {
-  "name": "information-management-system",
+  "name": "node-ims",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -9,6 +9,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
+  "author": "Manuel Schneider <mail@manuelschneider.net>",
+  "license": "Apache-2.0",
   "private": true,
   "dependencies": {
     "@angular/animations": "~11.2.7",
