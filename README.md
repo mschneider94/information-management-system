@@ -1,8 +1,8 @@
 # Node-IMS
 
-## Introduction
-
 Node-IMS is an Information Management System that provides the ability to Store and View/Review all types of information in flexible schemes.
+
+## Introduction
 
 Main concept for this project is not beeing limited to a singular view or structure for organizing informations.
 Informations can be stored inside the system, encased with meta-data and linked to other (parent-) documents.
