@@ -10,6 +10,6 @@ export interface InformationSchema {
   view: string;
   content: string;
   displayName: string;
-  parents: string[];
+  parents: any[];
   metaData: MetaData[];
 }

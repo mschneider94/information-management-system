@@ -4,7 +4,7 @@
       <tr>
         <th *ngFor="let metaData of viewService.schema.metaData">{{metaData.name}}</th>
         <th *ngIf="viewService.schema.content !== 'none' && viewService.schema.content !== 'dynamic'">{{viewService.schema.displayName}}</th>
-        <ng-container *ngFor="let parent of viewService.schemaParents">
+        <ng-container *ngFor="let parent of viewService.schema.parents">
           <th *ngIf="parent.content !== 'none'">{{parent.displayName}}</th>
         </ng-container>
       </tr>
@@ -18,7 +18,7 @@
         <!-- Content -->
         <td *ngIf="viewService.schema.content !== 'none' && viewService.schema.content !== 'dynamic'">{{viewService.formatContent(dataset.content, viewService.schema.content)}}</td>
         <!-- Parents -->
-        <ng-container *ngFor="let parent of viewService.schemaParents">
+        <ng-container *ngFor="let parent of viewService.schema.parents">
           <ng-container *ngIf="parent.content !== 'none'">
             <ng-container *ngFor="let object of dataset.parents">
               <td *ngIf="object.schema === parent._id">{{viewService.formatContent(object.content, parent.content, object.metaData, parent.metaData)}}</td>
