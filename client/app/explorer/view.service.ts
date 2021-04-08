@@ -34,7 +34,7 @@ export class ViewService {
 
   public informationData: InformationData[];
   private pullData(): void {
-    // Request all InformationData of current InfromationSchema, subscribe Observable
+    // Request all InformationData of current InformationSchema, subscribe Observable
     this.backendService.getData(this.schema._id, 'bySchema').subscribe(informationDataArray => {
       // Push InformationData-Object into this.informationData-Array
       informationDataArray.forEach(informationData => this.informationData.push(informationData));
