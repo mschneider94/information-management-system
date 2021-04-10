@@ -1,4 +1,9 @@
 <div class="uk-container uk-container-expand">
+  <form class="uk-search uk-search-default" *ngFor="let filter of viewService.filters">
+    <input class="uk-search-input" name="{{filter.name}}" [(ngModel)]="filter.choice" (input)="viewService.updateVisibility()" placeholder="{{filter.name}}">
+  </form>
+</div>
+<div class="uk-container uk-container-expand">
   <table class="uk-table uk-table-striped">
     <thead>
       <tr>
@@ -6,7 +11,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let dataset of viewService.data">
+      <tr *ngFor="let dataset of viewService.data" [class.uk-hidden]="!viewService.visibleData[dataset._id]">
         <td *ngFor="let filter of viewService.filters">
           {{viewService.getContent(dataset, filter)}}
         </td>
