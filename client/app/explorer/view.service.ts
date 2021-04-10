@@ -8,26 +8,98 @@ import { InformationSchema, MetaData } from '../information-schema.interface';
 })
 export class ViewService {
 
+  public schema: InformationSchema;
+  public data: InformationData[];
+  public filters: {}[];
+
   constructor(
     private backendService: BackendService
   ) { }
 
-  public schema: InformationSchema;
   public initialize(schema: InformationSchema): void {
-    // Import Schema
+    // Reset variables
     this.schema = schema;
+    this.filters = this.generateFilters(this.schema);
+    this.data = [];
     // Pull InformationData
-    this.informationData = [];
     this.pullData();
   }
 
-  public informationData: InformationData[];
+  private generateFilters(schema: InformationSchema): {}[] {
+    let filters: {}[] = [];
+
+    for (let i = 0; i < schema.metaData.length; i++) {
+      filters.push({
+        name: schema.metaData[i].name,
+        key: 'metaData',
+        index: i,
+        type: schema.metaData[i].type,
+        choice: null
+      });
+    }
+
+    if (schema.content !== 'none' && schema.content !== 'dynamic') {
+      filters.push({
+        name: schema.displayName,
+        key: 'content',
+        index: null,
+        type: schema.content,
+        choice: null
+      });
+    }
+
+    for (let i = 0; i < schema.parents.length; i++) {
+      if (schema.parents[i].content !== 'none') {
+        filters.push({
+          name: schema.parents[i].displayName,
+          key: 'parents',
+          index: i,
+          type: schema.parents[i].content,
+          choice: null
+        });
+      }
+    }
+
+    return filters;
+  }
+
   private pullData(): void {
     // Request all InformationData of current InformationSchema, subscribe Observable
     this.backendService.getData(this.schema._id, 'bySchema').subscribe(informationDataArray => {
       // Push InformationData-Object into this.informationData-Array
-      informationDataArray.forEach(informationData => this.informationData.push(informationData));
+      informationDataArray.forEach(informationData => this.data.push(informationData));
     });
+  }
+
+  public getContent(dataset: InformationData, filter: Record<string, any>): string {
+    let content: string = null;
+    
+    switch (filter.key) {
+      case 'metaData':
+        content = this.formatContent(
+          dataset[filter.key][filter.index][filter.name], 
+          filter.type
+        );
+        break;
+      case 'content':
+        content = this.formatContent(
+          dataset.content, 
+          filter.type
+        );
+        break;
+      case 'parents':
+        content = this.formatContent(
+          dataset[filter.key][filter.index].content, 
+          filter.type, 
+          dataset[filter.key][filter.index].metaData, 
+          this.schema[filter.key][filter.index].metaData
+        );
+        break;
+      default:
+        content = '';
+    }
+
+    return content;
   }
   
   public formatContent(input, format: string, metaDataContent?: any[], metaDataType?: MetaData[]): string {

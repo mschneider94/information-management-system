@@ -2,29 +2,14 @@
   <table class="uk-table uk-table-striped">
     <thead>
       <tr>
-        <th *ngFor="let metaData of viewService.schema.metaData">{{metaData.name}}</th>
-        <th *ngIf="viewService.schema.content !== 'none' && viewService.schema.content !== 'dynamic'">{{viewService.schema.displayName}}</th>
-        <ng-container *ngFor="let parent of viewService.schema.parents">
-          <th *ngIf="parent.content !== 'none'">{{parent.displayName}}</th>
-        </ng-container>
+        <th *ngFor="let filter of viewService.filters">{{filter.name}}</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let dataset of viewService.informationData">
-        <!-- MetaData -->  
-        <td *ngFor="let metaData of viewService.schema.metaData">
-          <ng-container *ngFor="let object of dataset.metaData"><ng-container *ngIf="object[metaData.name]">{{viewService.formatContent(object[metaData.name], metaData.type)}}</ng-container></ng-container>
+      <tr *ngFor="let dataset of viewService.data">
+        <td *ngFor="let filter of viewService.filters">
+          {{viewService.getContent(dataset, filter)}}
         </td>
-        <!-- Content -->
-        <td *ngIf="viewService.schema.content !== 'none' && viewService.schema.content !== 'dynamic'">{{viewService.formatContent(dataset.content, viewService.schema.content)}}</td>
-        <!-- Parents -->
-        <ng-container *ngFor="let parent of viewService.schema.parents">
-          <ng-container *ngIf="parent.content !== 'none'">
-            <ng-container *ngFor="let object of dataset.parents">
-              <td *ngIf="object.schema === parent._id">{{viewService.formatContent(object.content, parent.content, object.metaData, parent.metaData)}}</td>
-            </ng-container>
-          </ng-container>
-        </ng-container>
       </tr>
     </tbody>
   </table>

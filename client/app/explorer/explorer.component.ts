@@ -54,6 +54,9 @@ export class ExplorerComponent implements OnInit {
   }
 
   // subscribe to the explorer-service to get schema-data dynamically
+  //   establishes a flow from this.schemaName$ into ExplorerService
+  //   establishes a flow from ExplorerService into this.showView
+  //   put first schemaName onto flow into ExplorerService (initialization)
   private subscribeSchema$(): void {
     this.explorerService.getSchema$(this.schemaName$)
       .subscribe(schema => {
