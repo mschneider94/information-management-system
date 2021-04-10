@@ -93,7 +93,7 @@ export class ViewService {
         // test each term of choice
         for (let term of this.filters[i].choice.split(' ')) {
           // create regex from term
-          let regex = new RegExp(`\\b${term.replace('*', '.*')}\\b`, 'i');
+          let regex = new RegExp(`\\b${term.replace(/\*/g, '.*')}\\b`, 'i');
           // test regex against content
           if (!regex.test(this.getContent(dataset, this.filters[i]))) {
             visibility = false;
