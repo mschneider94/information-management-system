@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BackendService } from '../backend.service';
 import { InformationData } from '../information-data.interface';
 import { InformationSchema, MetaData } from '../information-schema.interface';
+import { MessageService } from '../message.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +11,13 @@ export class ViewService {
 
   public schema: InformationSchema;
   public data: InformationData[];
-  public filters: {}[];
+  public filters: Record<string,any>[];
+  public visibleData: {};
+  private updateVisibilityTimeout;
 
   constructor(
-    private backendService: BackendService
+    private backendService: BackendService,
+    private messageService: MessageService
   ) { }
 
   public initialize(schema: InformationSchema): void {
@@ -21,6 +25,7 @@ export class ViewService {
     this.schema = schema;
     this.filters = this.generateFilters(this.schema);
     this.data = [];
+    this.visibleData = {};
     // Pull InformationData
     this.pullData();
   }
@@ -63,11 +68,57 @@ export class ViewService {
     return filters;
   }
 
+  public updateVisibility(): void {
+    let timeout = 300;
+    // Clear last timeout
+    clearTimeout(this.updateVisibilityTimeout);
+    // Set new timeout
+    this.updateVisibilityTimeout = setTimeout(() => {
+      this.messageService.debug(`ViewService.updateVisibility`);
+      for (let i = 0; i < this.data.length; i++) {
+        if (this.data[i]) {
+          this.setVisibility(this.data[i]);
+        }
+      }
+    }, timeout);
+  }
+
+  private setVisibility(dataset?: InformationData): void {
+    let visibility = true;
+
+    // Iterate over this.filters
+    for (let i = 0; i < this.filters.length && visibility; i++) {
+      // skip empty choices
+      if (this.filters[i].choice && this.filters[i].choice !== '') {
+        // test each term of choice
+        for (let term of this.filters[i].choice.split(' ')) {
+          // create regex from term
+          let regex = new RegExp(`\\b${term.replace(/\*/g, '.*')}\\b`, 'i');
+          // test regex against content
+          if (!regex.test(this.getContent(dataset, this.filters[i]))) {
+            visibility = false;
+            break; // break inner-loop explicit, outer-loop will break implicit
+          }
+        }
+      }
+    }
+
+    this.visibleData[dataset._id] = visibility;
+  }
+
+  public shout(filter: Record<string,any>): void {
+    console.log(filter);
+  }
+
   private pullData(): void {
     // Request all InformationData of current InformationSchema, subscribe Observable
     this.backendService.getData(this.schema._id, 'bySchema').subscribe(informationDataArray => {
-      // Push InformationData-Object into this.informationData-Array
-      informationDataArray.forEach(informationData => this.data.push(informationData));
+      informationDataArray.forEach(informationData => {
+        // Push InformationData-Object into this.informationData-Array
+        this.data.push(informationData);
+        // Include into this.visibleData
+        this.setVisibility(informationData);
+      });
     });
   }
 
