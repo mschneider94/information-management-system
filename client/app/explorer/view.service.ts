@@ -17,7 +17,7 @@ export class ViewService {
 
   constructor(
     private backendService: BackendService,
-    private messateService: MessageService
+    private messageService: MessageService
   ) { }
 
   public initialize(schema: InformationSchema): void {
@@ -74,7 +74,7 @@ export class ViewService {
     clearTimeout(this.updateVisibilityTimeout);
     // Set new timeout
     this.updateVisibilityTimeout = setTimeout(() => {
-      this.messateService.debug(`ViewService.updateVisibility`);
+      this.messageService.debug(`ViewService.updateVisibility`);
       for (let i = 0; i < this.data.length; i++) {
         if (this.data[i]) {
           this.setVisibility(this.data[i]);
