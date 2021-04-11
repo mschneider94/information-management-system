@@ -1,13 +1,14 @@
+<!-- Buttons-Sidebar -->
+<div class="sidebar">
+  <div class="uk-inline sidebar-element uk-margin-right">
+    <a class="uk-button uk-button-primary uk-button-small uk-box-shadow-medium" uk-toggle href="#offcanvas-search">Search</a>
+  </div>
+</div>
+
+<!-- View Data -->
 <div class="uk-container uk-container-expand">
   <table class="uk-table uk-table-striped">
     <thead>
-      <tr id="search">
-        <th *ngFor="let filter of viewService.filters">
-          <form class="uk-search uk-search-default">
-            <input class="uk-search-input" name="{{filter.name}}" [(ngModel)]="filter.choice" (input)="viewService.updateVisibility()" placeholder="{{filter.name}}">
-          </form>
-        </th>
-      </tr>
       <tr>
         <th *ngFor="let filter of viewService.filters">{{filter.name}}</th>
       </tr>
@@ -20,4 +21,18 @@
       </tr>
     </tbody>
   </table>
+</div>
+
+<!-- Offcanvas Search -->
+<div id="offcanvas-search" uk-offcanvas="mode: push">
+  <div class="uk-offcanvas-bar">
+    <form class="uk-form-stacked">
+      <div *ngFor="let filter of viewService.filters" class="uk-margin">
+        <label class="uk-form-label" [for]="filter.name">{{filter.name}}</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="filter.choice" (input)="viewService.updateVisibility()">
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
