@@ -1,0 +1,10 @@
+.sidebar {
+  position: absolute;
+  transform-origin: bottom left;
+  transform: rotate(90deg);
+}
+
+.sidebar-element {
+  transform-origin: center;
+  transform: rotate(180deg);
+}
