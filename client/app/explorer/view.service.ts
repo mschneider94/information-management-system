@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { cloneDeep, remove } from 'lodash';
 import { BackendService } from '../backend.service';
 import { InformationData } from '../information-data.interface';
 import { InformationSchema, MetaData } from '../information-schema.interface';
@@ -12,6 +13,9 @@ export class ViewService {
   public schema: InformationSchema;
   public data: InformationData[];
   public filters: Record<string,any>[];
+  public editorCache: InformationData;
+  // check if content possible
+  // input metaData
   public visibleData: {};
   private updateVisibilityTimeout;
 
@@ -24,6 +28,7 @@ export class ViewService {
     // Reset variables
     this.schema = schema;
     this.filters = this.generateFilters(this.schema);
+    this.editorCache = this.generateNewInformationData(this.schema);
     this.data = [];
     this.visibleData = {};
     // Pull InformationData
@@ -55,17 +60,38 @@ export class ViewService {
 
     for (let i = 0; i < schema.parents.length; i++) {
       if (schema.parents[i].content !== 'none') {
-        filters.push({
+        let object: Record<string,any> = {
+          schema: schema.parents[i]._id,
           name: schema.parents[i].displayName,
           key: 'parents',
           index: i,
           type: schema.parents[i].content,
-          choice: null
-        });
+          choice: null,
+          values: {}
+        };
+        this.pullParentPreview(schema.parents[i], object.values);
+        filters.push(object);
       }
     }
 
     return filters;
+  }
+
+  private generateNewInformationData(schema: InformationSchema): InformationData {
+    let newInformationData = {
+      schema: schema._id,
+      content: null,
+      parents: [],
+      metaData: []
+    };
+
+    for (let filter of this.filters.filter(filter => filter.key === 'metaData')) {
+      newInformationData.metaData.push({
+        [filter.name]: null
+      });
+    }
+
+    return newInformationData;
   }
 
   public updateVisibility(): void {
@@ -83,7 +109,7 @@ export class ViewService {
     }, timeout);
   }
 
-  private setVisibility(dataset?: InformationData): void {
+  private setVisibility(dataset: InformationData): void {
     let visibility = true;
 
     // Iterate over this.filters
@@ -106,8 +132,48 @@ export class ViewService {
     this.visibleData[dataset._id] = visibility;
   }
 
-  public shout(filter: Record<string,any>): void {
-    console.log(filter);
+  public shout(): void {
+    console.log(this.editorCache);
+  }
+
+  public updateEditorCache(dataset?: InformationData): void {
+    if (dataset) {
+      this.editorCache = cloneDeep(dataset);
+    } else {
+      this.editorCache = cloneDeep(this.generateNewInformationData(this.schema));
+    }
+  }
+
+  public editorCacheAddParent(id: string): void {
+    // Request InformationData by by id, subscribe Observable
+    this.backendService.getData(id, 'byId').subscribe(informationDataArray => {
+      informationDataArray.forEach(informationData => {
+        // Push InformationData-Object into this.editorCache.parents
+        this.editorCache.parents.push(informationData);
+      });
+    });
+  }
+
+  public editorCacheRemoveParent(id: string): void {
+    remove(this.editorCache.parents, item => id === item._id);
+  }
+
+  public writeEditorCache(): void {
+    if (this.editorCache._id) {
+      let index = this.data.findIndex(item => this.editorCache._id === item._id);
+
+      if (index !== -1) {
+        this.data[index] = this.editorCache;
+      } else {
+        this.messageService.show(`ViewService.writeEditorCache: invalid Object-ID ${this.editorCache._id}`, 'danger');
+      }
+    } else {
+      this.data.push(this.editorCache);
+    }
+
+    this.updateVisibility();
+
+    // Write to Database!!!
   }
 
   private pullData(): void {
@@ -122,15 +188,29 @@ export class ViewService {
     });
   }
 
+  private pullParentPreview(parent: Record<string,any>, target: Record<string,any>[]): void {
+    // Request all InformationData of selected InformationSchema, subscribe Observable
+    this.backendService.getData(parent._id, 'bySchema').subscribe(informationDataArray => {
+      informationDataArray.forEach(informationData => {
+        // Push Preview of Parent into target
+        target[informationData._id] = this.formatContent(informationData.content, parent.content, informationData.metaData, parent.metaData);
+        console.log(target);
+      });
+    });
+  }
+
   public getContent(dataset: InformationData, filter: Record<string, any>): string {
     let content: string = null;
     
     switch (filter.key) {
       case 'metaData':
-        content = this.formatContent(
-          dataset[filter.key][filter.index][filter.name], 
-          filter.type
-        );
+        let metaData = dataset.metaData.find(item => Object.keys(item).find(key => key === filter.name));
+        if (metaData) {
+          content = this.formatContent(
+            metaData[filter.name], 
+            filter.type
+          );
+        }
         break;
       case 'content':
         content = this.formatContent(
@@ -139,12 +219,15 @@ export class ViewService {
         );
         break;
       case 'parents':
-        content = this.formatContent(
-          dataset[filter.key][filter.index].content, 
-          filter.type, 
-          dataset[filter.key][filter.index].metaData, 
-          this.schema[filter.key][filter.index].metaData
-        );
+        let parent = dataset.parents.find(item => item.schema === filter.schema);
+        if (parent) {
+          content = this.formatContent(
+            parent.content, 
+            filter.type, 
+            parent.metaData, 
+            this.schema.parents[filter.index].metaData
+          );
+        }
         break;
       default:
         content = '';

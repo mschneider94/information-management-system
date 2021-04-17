@@ -4,10 +4,10 @@
     <a class="uk-button uk-button-primary uk-button-small uk-box-shadow-medium" uk-toggle href="#offcanvas-search">Search</a>
   </div>
   <div class="uk-inline sidebar-element uk-margin-right">
-    <a class="uk-button uk-button-secondary uk-button-small uk-box-shadow-medium" uk-toggle href="#modal-edit">Add new</a>
+    <a (click)="viewService.updateEditorCache()" class="uk-button uk-button-secondary uk-button-small uk-box-shadow-medium" uk-toggle href="#modal-edit">Add new</a>
   </div>
 </div>
-
+<a (click)="viewService.shout()">SHOUT</a>
 <!-- View Data -->
 <div class="uk-container uk-container-expand">
   <table class="uk-table uk-table-striped">
@@ -17,8 +17,9 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let dataset of viewService.data" [class.uk-hidden]="!viewService.visibleData[dataset._id]">
-        <td *ngFor="let filter of viewService.filters">
+      <tr *ngFor="let dataset of viewService.data" [class.uk-hidden]="!viewService.visibleData[dataset._id]" class="uk-visible-toggle">
+        <td *ngFor="let filter of viewService.filters; let i = index">
+          <a *ngIf="i === 0" (click)="viewService.updateEditorCache(dataset)" class="uk-hidden-hover" uk-icon="icon: pencil" uk-toggle href="#modal-edit"></a>
           {{viewService.getContent(dataset, filter)}}
         </td>
       </tr>
@@ -29,7 +30,7 @@
 <!-- Offcanvas Search -->
 <div id="offcanvas-search" uk-offcanvas="mode: push">
   <div class="uk-offcanvas-bar">
-    <form class="uk-form-stacked">
+    <form id="search" class="uk-form-stacked">
       <div *ngFor="let filter of viewService.filters" class="uk-margin">
         <label class="uk-form-label" [for]="filter.name">{{filter.name}}</label>
         <div class="uk-form-controls">
@@ -43,7 +44,39 @@
 <!-- Modal Edit -->
 <div id="modal-edit" uk-modal>
   <div class="uk-modal-dialog uk-modal-body">
-      <h2 class="uk-modal-title">Editor</h2>
-      <button class="uk-modal-close" type="button"></button>
+    <button class="uk-modal-close-default" type="button" uk-close></button>
+    <h2 class="uk-modal-title">Editor</h2>
+    <form id="edit"class="uk-form-stacked">
+      <div *ngFor="let filter of viewService.filters" class="uk-margin">
+        <!-- Prepare a whole InformationObject for use of the editor -->
+        <!-- ...Bind these Inputs to that InformationObject and just fill that up or store as new -->
+        <label class="uk-form-label" [for]="filter.name">{{filter.name}}</label>
+        <div class="uk-form-controls">
+          <input *ngIf="filter.key === 'metaData'" class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.metaData[filter.index][filter.name]">
+          <input *ngIf="filter.key === 'content'" class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.content">
+          <ng-container *ngIf="filter.key === 'parents'">
+            <!-- Dorpdown to add parent -->
+            <button class="uk-button uk-button-default" type="button"><span uk-icon="plus"></span></button>
+            <div uk-dropdown="mode: click">
+              <ul class="uk-nav uk-dropdown-nav">
+                <ng-container *ngFor="let item of filter.values | keyvalue">
+                  <li><a (click)="viewService.editorCacheAddParent(item.key)">{{item.value}}</a></li>
+                </ng-container>
+              </ul>
+            </div>
+            <!-- Display of selected parents -->
+            <ng-container *ngFor="let parent of viewService.editorCache.parents">
+              <button *ngIf="parent.schema === filter.schema" (click)="viewService.editorCacheRemoveParent(parent._id)" class="uk-button uk-button-default uk-visible-toggle" type="button">
+                {{filter.values[parent._id]}}
+                <div class="uk-hidden-hover uk-display-inline uk-text-danger">
+                  &nbsp;<span uk-icon="close"></span>
+                </div>
+              </button>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+      <button (click)="viewService.writeEditorCache()" class="uk-button uk-button-default">Submit</button>
+    </form>
   </div>
 </div>
