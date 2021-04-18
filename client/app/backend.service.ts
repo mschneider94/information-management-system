@@ -91,4 +91,33 @@ export class BackendService {
       catchError(this.handleError<InformationData[]>(`BackendService.getSchema(${identifier})`, fallbackData))
     );
   }
+
+  public addData(data: InformationData): Observable<InformationData> {
+    let apiEndpoint: string = environment.backendUrl + '/data/';
+    
+    return this.http.post<InformationData>(apiEndpoint, data, this.httpOptions).pipe(
+      tap((newData: InformationData) => this.messageService.debug(`BackendService.addData(${newData})`)),
+      catchError(this.handleError<InformationData>(`BackendService.addData(${data})`, data))
+    );
+  }
+
+  public updateData(data: InformationData): Observable<InformationData> {
+    let apiEndpoint: string = environment.backendUrl + '/data/' + data._id;
+    
+    return this.http.put(apiEndpoint, data, this.httpOptions).pipe(
+      tap(_ => this.messageService.debug(`BackendService.updateData${data._id}`)),
+      catchError(this.handleError<any>(`BackendService.updateData${data._id}`, data))
+    );
+  }
+
+  public deleteData(id: string): Observable<Record<string,string>> {
+    let apiEndpoint: string = environment.backendUrl + '/data/' + id;
+
+    console.log(apiEndpoint);
+    
+    return this.http.delete<Record<string,string>>(apiEndpoint, this.httpOptions).pipe(
+      tap(_ => this.messageService.debug(`BackendService.deleteData${id}`)),
+      catchError(this.handleError<Record<string,string>>(`BackendService.deleteData${id}`))
+    );
+  }
 }

@@ -133,7 +133,7 @@ export class ViewService {
   }
 
   public shout(): void {
-    console.log(this.editorCache);
+    console.log(this.filters);
   }
 
   public updateEditorCache(dataset?: InformationData): void {
@@ -163,17 +163,29 @@ export class ViewService {
       let index = this.data.findIndex(item => this.editorCache._id === item._id);
 
       if (index !== -1) {
-        this.data[index] = this.editorCache;
+        //this.data[index] = this.editorCache;
+        this.backendService.updateData(this.editorCache).subscribe(result => this.data[index] = result);
       } else {
         this.messageService.show(`ViewService.writeEditorCache: invalid Object-ID ${this.editorCache._id}`, 'danger');
       }
     } else {
-      this.data.push(this.editorCache);
+      //this.data.push(this.editorCache);
+      this.backendService.addData(this.editorCache).subscribe(result => this.data.push(result));
     }
 
     this.updateVisibility();
 
     // Write to Database!!!
+  }
+
+  public deleteEditorCache(): void {
+    if (this.editorCache._id) {
+      this.backendService.deleteData(this.editorCache._id).subscribe(result => {
+        remove(this.data, item => result._id === item._id);
+      });
+    }
+
+    this.editorCache = this.generateNewInformationData(this.schema);
   }
 
   private pullData(): void {

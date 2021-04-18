@@ -51,10 +51,18 @@
         <!-- Prepare a whole InformationObject for use of the editor -->
         <!-- ...Bind these Inputs to that InformationObject and just fill that up or store as new -->
         <label class="uk-form-label" [for]="filter.name">{{filter.name}}</label>
-        <div class="uk-form-controls">
-          <input *ngIf="filter.key === 'metaData'" class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.metaData[filter.index][filter.name]">
-          <input *ngIf="filter.key === 'content'" class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.content">
-          <ng-container *ngIf="filter.key === 'parents'">
+        <div class="uk-form-controls" [ngSwitch]="filter.key">
+          <!-- metaData -->
+          <ng-container *ngSwitchCase="'metaData'" [ngSwitch]="filter.type">
+            <input *ngSwitchCase="'dateTime'" class="uk-input" type="datetime-local" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.metaData[filter.index][filter.name]">
+            <input *ngSwitchDefault class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.metaData[filter.index][filter.name]">
+          </ng-container>
+          <!-- content -->
+          <ng-container *ngSwitchCase="'content'">
+            <input class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.content">
+          </ng-container>
+          <!-- parents -->
+          <ng-container *ngSwitchCase="'parents'">
             <!-- Dorpdown to add parent -->
             <button class="uk-button uk-button-default" type="button"><span uk-icon="plus"></span></button>
             <div uk-dropdown="mode: click">
@@ -76,7 +84,8 @@
           </ng-container>
         </div>
       </div>
-      <button (click)="viewService.writeEditorCache()" class="uk-button uk-button-default">Submit</button>
+      <button (click)="viewService.writeEditorCache()" class="uk-button uk-button-default">Save</button>
+      <button *ngIf="viewService.editorCache._id" (click)="viewService.deleteEditorCache()" class="uk-button uk-button-danger uk-align-right">Delete</button>
     </form>
   </div>
 </div>
