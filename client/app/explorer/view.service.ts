@@ -39,13 +39,20 @@ export class ViewService {
     let filters: {}[] = [];
 
     for (let i = 0; i < schema.metaData.length; i++) {
-      filters.push({
+      let filter = {
         name: schema.metaData[i].name,
         key: 'metaData',
         index: i,
         type: schema.metaData[i].type,
         choice: null
-      });
+      };
+      if (filter.type === 'dateTime') {
+        filter.choice = {
+          min: new Date(0),
+          max: new Date(Date.now())
+        }
+      }
+      filters.push(filter);
     }
 
     if (schema.content !== 'none' && schema.content !== 'dynamic') {
@@ -86,9 +93,15 @@ export class ViewService {
     };
 
     for (let filter of this.filters.filter(filter => filter.key === 'metaData')) {
-      newInformationData.metaData.push({
+      let metaData = {
         [filter.name]: null
-      });
+      };
+
+      if (filter.type === 'dateTime') {
+        metaData[filter.name] = new Date(Date.now());
+      }
+
+      newInformationData.metaData.push(metaData);
     }
 
     return newInformationData;
@@ -114,26 +127,48 @@ export class ViewService {
 
     // Iterate over this.filters
     for (let i = 0; i < this.filters.length && visibility; i++) {
-      // skip empty choices
-      if (this.filters[i].choice && this.filters[i].choice !== '') {
-        // test each term of choice
-        for (let term of this.filters[i].choice.split(' ')) {
-          // create regex from term
-          let regex = new RegExp(`\\b${term.replace(/\*/g, '.*')}\\b`, 'i');
-          // test regex against content
-          if (!regex.test(this.getContent(dataset, this.filters[i]))) {
+      switch (this.filters[i].type) {
+        case 'dateTime':
+          if (
+            this.anyToDate(this.getContent(dataset, this.filters[i], false)) < this.filters[i].choice.min
+            ||
+            this.anyToDate(this.getContent(dataset, this.filters[i], false)) > this.filters[i].choice.max
+          ) {
             visibility = false;
-            break; // break inner-loop explicit, outer-loop will break implicit
           }
-        }
+          break;
+        default:
+          // skip empty choices
+          if (this.filters[i].choice && this.filters[i].choice !== '') {
+            // test each term of choice
+            for (let term of this.filters[i].choice.split(' ')) {
+              // create regex from term
+              let regex = new RegExp(`\\b${term.replace(/\*/g, '.*')}\\b`, 'i');
+              // test regex against content
+              if (!regex.test(this.getContent(dataset, this.filters[i]))) {
+                visibility = false;
+                break; // break inner-loop explicit, outer-loop will break implicit
+              }
+            }
+          }
+          break;
       }
+          
     }
 
     this.visibleData[dataset._id] = visibility;
   }
 
-  public shout(): void {
-    console.log(this.filters);
+  public anyToDate(date): Date {
+    return new Date(date)
+  }
+
+  public shout(input?: string): void {
+    if (input) {
+      console.log(new Date(input).toISOString());
+    }else {
+      console.log(this.filters);
+    }
   }
 
   public updateEditorCache(dataset?: InformationData): void {
@@ -161,6 +196,11 @@ export class ViewService {
   public writeEditorCache(): void {
     if (this.editorCache._id) {
       let index = this.data.findIndex(item => this.editorCache._id === item._id);
+
+      for (let filter of this.filters.filter(filter => filter.type === 'dateTime')) {
+        // Convert to Type DATE - that type-conversion seemingly get lost in Node-RED...
+        this.editorCache.metaData[filter.index][filter.name] = this.anyToDate(this.editorCache.metaData[filter.index][filter.name]);
+      }
 
       if (index !== -1) {
         //this.data[index] = this.editorCache;
@@ -211,38 +251,54 @@ export class ViewService {
     });
   }
 
-  public getContent(dataset: InformationData, filter: Record<string, any>): string {
-    let content: string = null;
+  public getContent(dataset: InformationData, filter: Record<string, any>, format: boolean = true): any {
+    let content: any = null;
     
     switch (filter.key) {
       case 'metaData':
         let metaData = dataset.metaData.find(item => Object.keys(item).find(key => key === filter.name));
         if (metaData) {
-          content = this.formatContent(
-            metaData[filter.name], 
-            filter.type
-          );
+          if (format) {
+            content = this.formatContent(
+              metaData[filter.name], 
+              filter.type
+            );
+          } else {
+            content = metaData[filter.name];
+          }
         }
         break;
       case 'content':
-        content = this.formatContent(
-          dataset.content, 
-          filter.type
-        );
+        if (format) {
+          content = this.formatContent(
+            dataset.content, 
+            filter.type
+          );
+        } else {
+          content = dataset.content;
+        }
         break;
       case 'parents':
         let parent = dataset.parents.find(item => item.schema === filter.schema);
         if (parent) {
-          content = this.formatContent(
-            parent.content, 
-            filter.type, 
-            parent.metaData, 
-            this.schema.parents[filter.index].metaData
-          );
+          if (format) {
+            content = this.formatContent(
+              parent.content, 
+              filter.type, 
+              parent.metaData, 
+              this.schema.parents[filter.index].metaData
+            );
+          } else {
+            content = parent;
+          }
         }
         break;
       default:
-        content = '';
+        if (format) {
+          content = '';
+        } else {
+          content = null;
+        }
     }
 
     return content;
@@ -251,19 +307,21 @@ export class ViewService {
   public formatContent(input, format: string, metaDataContent?: any[], metaDataType?: MetaData[]): string {
     let content: string = '';
 
-    switch (format) {
-      case 'text':
-        content = input;
-        break;
-      case 'dateTime':
-        content = new Date(input).toLocaleString('de-DE');
-        //content += isoDate.getFullYear() + '-' + (isoDate.getMonth()+1) + '-' + isoDate.getDate() + ' ' + isoDate.getHours() + ':' 
-        break;
-      case 'dynamic':
-        input.string.forEach(component => /^#.*/.test(component) ? content += metaDataContent.map(object => object[component.substring(1)]).find(object => typeof(object) === 'string') : content += component);
-        break;
-      default:
-        content = input;
+    if (input) {
+      switch (format) {
+        case 'text':
+          content = input;
+          break;
+        case 'dateTime':
+          content = new Date(input).toLocaleString('de-DE');
+          //content += isoDate.getFullYear() + '-' + (isoDate.getMonth()+1) + '-' + isoDate.getDate() + ' ' + isoDate.getHours() + ':' 
+          break;
+        case 'dynamic':
+          input.string.forEach(component => /^#.*/.test(component) ? content += metaDataContent.map(object => object[component.substring(1)]).find(object => typeof(object) === 'string') : content += component);
+          break;
+        default:
+          content = input;
+      }
     }
 
     return content;

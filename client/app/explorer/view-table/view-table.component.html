@@ -32,9 +32,29 @@
   <div class="uk-offcanvas-bar">
     <form id="search" class="uk-form-stacked">
       <div *ngFor="let filter of viewService.filters" class="uk-margin">
-        <label class="uk-form-label" [for]="filter.name">{{filter.name}}</label>
-        <div class="uk-form-controls">
-          <input class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="filter.choice" (input)="viewService.updateVisibility()">
+        <label class="uk-form-label" [for]="filter.name">{{filter.name}}<ng-container *ngIf="filter.key === 'metaData' && filter.type === 'dateTime'"> (min/max)</ng-container></label>
+        <div class="uk-form-controls" [ngSwitch]="filter.type">
+          <ng-container *ngSwitchCase="'dateTime'">
+            <input
+              class="uk-input" type="datetime-local" step=1 [id]="'search.min.' + filter.name" [name]="'search.min.' + filter.name" 
+              [ngModel]="filter.choice.min | date:'yyyy-MM-ddTHH:mm:ss'" 
+              (ngModelChange)="filter.choice.min = viewService.anyToDate($event)" 
+              (input)="viewService.updateVisibility()"
+            >
+            <input
+              class="uk-input" type="datetime-local" step=1 [id]="'search.max.' + filter.name" [name]="'search.max.' + filter.name" 
+              [ngModel]="filter.choice.max | date:'yyyy-MM-ddTHH:mm:ss'" 
+              (ngModelChange)="filter.choice.max = viewService.anyToDate($event)" 
+              (input)="viewService.updateVisibility()"
+            >
+          </ng-container>
+          <ng-container *ngSwitchDefault>
+            <input
+              class="uk-input" type="text" [id]="'search.' + filter.name" [name]="'search.' + filter.name" 
+              [(ngModel)]="filter.choice" 
+              (input)="viewService.updateVisibility()"
+            >
+          </ng-container>
         </div>
       </div>
     </form>
@@ -45,7 +65,7 @@
 <div id="modal-edit" uk-modal>
   <div class="uk-modal-dialog uk-modal-body">
     <button class="uk-modal-close-default" type="button" uk-close></button>
-    <h2 class="uk-modal-title">Editor</h2>
+    <!--<h2 class="uk-modal-title">Editor</h2>-->
     <form id="edit"class="uk-form-stacked">
       <div *ngFor="let filter of viewService.filters" class="uk-margin">
         <!-- Prepare a whole InformationObject for use of the editor -->
@@ -54,8 +74,15 @@
         <div class="uk-form-controls" [ngSwitch]="filter.key">
           <!-- metaData -->
           <ng-container *ngSwitchCase="'metaData'" [ngSwitch]="filter.type">
-            <input *ngSwitchCase="'dateTime'" class="uk-input" type="datetime-local" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.metaData[filter.index][filter.name]">
-            <input *ngSwitchDefault class="uk-input" type="text" [id]="filter.name" [name]="filter.name" [(ngModel)]="viewService.editorCache.metaData[filter.index][filter.name]">
+            <input *ngSwitchCase="'dateTime'" 
+              class="uk-input" type="datetime-local" step=1 [id]="'edit.' + filter.name" [name]="'edit.' + filter.name" 
+              [ngModel]="viewService.editorCache.metaData[filter.index][filter.name] | date:'yyyy-MM-ddTHH:mm:ss'" 
+              (ngModelChange)="viewService.editorCache.metaData[filter.index][filter.name] = viewService.anyToDate($event).toISOString()"
+            >
+            <input *ngSwitchDefault 
+              class="uk-input" type="text" [id]="'edit.' + filter.name" [name]="'edit.' + filter.name" 
+              [(ngModel)]="viewService.editorCache.metaData[filter.index][filter.name]"
+            >
           </ng-container>
           <!-- content -->
           <ng-container *ngSwitchCase="'content'">
